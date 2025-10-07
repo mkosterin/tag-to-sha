@@ -81,8 +81,9 @@ func main() {
 		logger.Info("got image", "image", img)
 	}
 
-	for index, image := range images {
-		fmt.Printf("Image[%d]: Registry=%s, Path=%s, Tag=%s, Sha256digest=%s\n", index, image.Registry, image.Path, image.Tag, image.Sha256digest)
+	registry := models.NewRegistryList(images)
+	fmt.Print("-----------------------------")
+	for _, reg := range registry {
+		fmt.Printf("Registry: %s-%s-%s\n", reg.Url, reg.Token, reg.AuthReq)
 	}
-
 }

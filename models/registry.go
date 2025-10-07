@@ -1,18 +1,25 @@
 package models
 
 type Registry struct {
-	url   string
-	token string
+	Url     string
+	Token   string
+	AuthReq bool
 }
 
-func NewRegistry() (*Registry, error) {
-	return &Registry{
-		url:   "",
-		token: "",
-	}, nil
-}
+func NewRegistryList(images []*Image) []Registry {
+	registryMap := make(map[string]bool)
+	for _, image := range images {
+		registryMap[image.Registry] = true
+	}
+	var registries []Registry
+	for url := range registryMap {
+		reg := Registry{
+			Url:     url,
+			Token:   "",
+			AuthReq: true,
+		}
+		registries = append(registries, reg)
+	}
 
-func (r *Registry) GetToken() error {
-
-	return nil
+	return registries
 }
