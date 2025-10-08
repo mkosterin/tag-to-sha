@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"os"
 	"strings"
+	"tag-to-sha/config"
 	"tag-to-sha/models"
 
 	"github.com/spf13/cobra"
@@ -27,12 +28,18 @@ func main() {
 
 	var rootCmd = &cobra.Command{}
 
-	rootCmd.Flags().StringVarP(&arguments.SourceFileName, "file", "f", "", "path/name to souce file")
+	rootCmd.Flags().StringVarP(&arguments.SourceFileName, "file", "f", "", "path/name to source file")
+	rootCmd.Flags().StringVarP(&arguments.ConfigFileName, "config", "c", "config/config.yaml", "path/name to config file")
 	rootCmd.MarkFlagRequired("file")
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
+	}
+
+	cfg, err := config.NewConfig(arguments.ConfigFileName)
+	if err != nil {
+		logger.Error("something went wront with config file")
 	}
 
 	if _, err := os.Stat(arguments.SourceFileName); os.IsNotExist(err) {
@@ -81,9 +88,12 @@ func main() {
 		logger.Info("got image", "image", img)
 	}
 
-	registry := models.NewRegistryList(images)
+	registry := models.NewLRegistry(images, cfg)
+	err = registry.GetToken()
 	fmt.Print("-----------------------------")
-	for _, reg := range registry {
-		fmt.Printf("Registry: %s-%s-%s\n", reg.Url, reg.Token, reg.AuthReq)
+	for _, reg := range registry.L {
+		//		fmt.Printf("Registry: valid token: %s url: %s token: %s authReq: %s authURL: %s\n", reg.ValidToken, reg.Url, reg.Token, reg.AuthReq, reg.AuthUrl)
+		fmt.Printf("\n%s", reg.Url)
+
 	}
 }
